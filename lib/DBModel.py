@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """ Classes to manage the Databases """
 from elixir import *
+from DBConfig import DBConf
 
 class Profiles(Entity):
     using_options(tablename = 'Profiles')
