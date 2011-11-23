@@ -7,10 +7,14 @@ create_all()
 
 class Administrator():
     def identify_table(self, wtable):
-        if wtable == 'servers':
-            table = Servers()
-        elif wtable == 'profiles':
+        if wtable == 'Profiles':
             table = Profiles()
+        elif wtable == 'MyStocks':
+            table = MyStocks()
+        elif wtable == 'FollowStocks':
+            table = FollowStocks()
+        elif wtable == 'HistoryStocks':
+            table = HistoryStocks()
         else:
             print ('La tabla donde desea insertar no existe.')
             table = None
@@ -37,10 +41,14 @@ class Administrator():
 
 class Querys():
     def identify_table(self, wtable):
-        if wtable == 'servers':
-            return Servers.query.all()
-        elif wtable == 'profiles':
+        if wtable == 'Profiles':
             return Profiles.query.all()
+        elif wtable == 'MyStocks':
+            return MyStocks.query.all()
+        elif wtable == 'FollowStocks':
+            return FollowStocks.query.all()
+        elif wtable == 'HistoryStocks':
+            return HistoryStocks.query.all()
         else:
             print ('La tabla donde obtener la consulta no existe.')
             return False
@@ -75,46 +83,28 @@ class Querys():
             return None
 
     def search_table(self, wtable, value):
-        if wtable == "server_id":
-            return Servers.get_by(id=value)
-        elif wtable == "server_addr":
-            return Servers.get_by(add=value.decode())
-        elif wtable == "server_who":
-            return Servers.query.filter_by(profile=value).all()
-        elif wtable == "profile":
+        if wtable == 'Profiles':
             return Profiles.get_by(profile=value.decode())
+        elif wtable == 'MyStocks':
+            return MyStocks.query.filter_by(profile=value).all()
+        elif wtable == 'MyFollowStocks':
+            query_filter = Profiles.profile.like(value.profile)
+            return FollowStocks.query.filter(query_filter).all()
+        elif wtable == 'MyHistoryStocks':
+            query_filter = Profiles.profile.like(value.profile)
+            return HistoryStocks.query.filter(query_filter).all()
         else:
             return None
 
-    def like_servers(self, user_id, table_filter=None, value=None, asdict=False):
-        profile = self.search_table("profile", user_id)
+    def get_profile(self, user_id, relationship=[], asdict=True):
+        profile = self.search_table("Profiles", user_id)
         if not profile:
             print ('Debe especificar un user_id valido.')
             return False
         else:
-            if table_filter and value:
-                servers = self.like_table(table_filter, value)
-                if asdict:
-                    return [i.to_dict() for i in servers]
-                else:
-                    return servers
-            else:
-                return False
-
-    def get_profile_servers(self, user_id, asdict=True):
-        profile = self.search_table("profile", user_id)
-        if not profile:
-            print ('Debe especificar un user_id valido.')
-            return False
-        else:
-            servers = self.search_table("server_who", profile)
+            attr = dict((i, self.search_table(i, profile)) for i in relationship)
             if asdict:
-                return dict((i.id,i.to_dict()) for i in servers)
-            else:
-                return servers
+                for i in attr:
+                    attr[i] = [x.to_dict() for x in attr[i] if x != None]
+            print attr
 
-    def get_server_info(self, server, asdict=True):
-        res = self.search_table('server_id', server)
-        if asdict:
-            return res.to_dict()
-        return res

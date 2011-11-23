@@ -11,8 +11,9 @@ class Profiles(Entity):
     fullname = Field(Unicode)
     email = Field(Unicode)
     last_access = Field(DateTime)
-    following = ManyToMany('FollowStocks')
     stocks = OneToMany('MyStocks')
+    following = ManyToMany('FollowStocks')
+    history = ManyToMany('HistoryStocks')
 
 class MyStocks(Entity):
     using_options(tablename = 'MyStocks')
@@ -28,7 +29,7 @@ class MyStocks(Entity):
 
 class FollowStocks(Entity):
     using_options(tablename = 'FollowStocks')
-    stock = Field(Unicode, required = True)
+    stock = Field(Unicode, required = True, unique = True)
     date = Field(DateTime)
     half_profit = Field(Integer)
     maximum = Field(Integer)
@@ -51,7 +52,7 @@ class HistoryStocks(Entity):
     shell_price = Field(Integer)
     gain = Field(Integer)
     half_profit = Field(Integer)
-    who = ManyToOne('Profiles')
+    profile = ManyToMany('Profiles')
 
 metadata.bind = DBConf().load()
 #metadata.bind.echo  =  True
