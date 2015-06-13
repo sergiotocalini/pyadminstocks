@@ -1,0 +1,3 @@
+# pyadminstocks
+Manage your stocks
+.
